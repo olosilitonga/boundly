@@ -1,9 +1,11 @@
 /**
- * app.js — Main Controller (v3)
+ * app.js — Main Controller (v4)
  * Boundly / Hackonomics Project
  *
- * Full pipeline:
- * budget → analyze → cost → risk → recommendation → AI suggestion
+ * New in v4:
+ * - "I'm In" / "I'm Out" decision buttons after analysis
+ * - "I'm In"  → saves to spending history, deducts from fun budget
+ * - "I'm Out" → increments FOMO score, budget untouched
  */
 
 import { calculateBudget } from "./budget.js";
@@ -14,42 +16,58 @@ import { getRecommendation } from "./recommendations.js";
 import { getAISuggestion } from "./aiSuggestions.js";
 
 // ─── API Key ──────────────────────────────────────────────────────────────────
-// Get a free key at https://openrouter.ai
-// Replace the string below with your actual key before running
 
 const OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY_HERE";
 
 // ─── Storage Keys ─────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "boundly_history";
+const HISTORY_KEY = "boundly_history";
 const FOMO_KEY = "boundly_fomo";
+const SPENDING_KEY = "boundly_spendings";
+
+// ─── Storage Helpers ──────────────────────────────────────────────────────────
+
+function loadHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; } }
+function loadSpendings() { try { return JSON.parse(localStorage.getItem(SPENDING_KEY)) || []; } catch { return []; } }
+function saveSpendings(arr) { localStorage.setItem(SPENDING_KEY, JSON.stringify(arr)); }
+function getFomoScore() { return parseInt(localStorage.getItem(FOMO_KEY) || "0"); }
+function incrementFomo() { localStorage.setItem(FOMO_KEY, getFomoScore() + 1); }
+
+function saveToHistory(entry) {
+  const history = loadHistory();
+  history.unshift(entry);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
+
+/**
+ * Logs a confirmed "I'm In" spending to the spending history.
+ * @param {{ label: string, amount: number, category: string }} item
+ */
+function logSpending(item) {
+  const spendings = loadSpendings();
+  spendings.unshift({ ...item, date: new Date().toISOString() });
+  saveSpendings(spendings);
+}
+
+/**
+ * Returns total spent this month from spending history.
+ * @returns {number}
+ */
+function getTotalSpentThisMonth() {
+  const now = new Date();
+  const spendings = loadSpendings();
+  return spendings
+    .filter(s => {
+      const d = new Date(s.date);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    })
+    .reduce((sum, s) => sum + s.amount, 0);
+}
 
 // ─── DOM References ───────────────────────────────────────────────────────────
 
 const analyzeBtn = document.getElementById("analyzeBtn");
 const resultDiv = document.getElementById("result");
-
-// ─── LocalStorage Helpers ─────────────────────────────────────────────────────
-
-function loadHistory() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { return []; }
-}
-
-function saveToHistory(entry) {
-  const history = loadHistory();
-  history.unshift(entry);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-}
-
-function incrementFomo() {
-  const current = parseInt(localStorage.getItem(FOMO_KEY) || "0");
-  localStorage.setItem(FOMO_KEY, current + 1);
-}
-
-function getFomoScore() {
-  return parseInt(localStorage.getItem(FOMO_KEY) || "0");
-}
 
 // ─── Input Validation ─────────────────────────────────────────────────────────
 
@@ -68,9 +86,7 @@ function validateInputs(income, expenses, savings, inviteText) {
 // ─── UI Helpers ───────────────────────────────────────────────────────────────
 
 function showError(message) {
-  resultDiv.innerHTML = `
-    <div class="error">⚠️ <strong>Oops!</strong> ${message}</div>
-  `;
+  resultDiv.innerHTML = `<div class="error">⚠️ <strong>Oops!</strong> ${message}</div>`;
 }
 
 function showLoading() {
@@ -109,11 +125,13 @@ function progressBar(percentage, riskLevel) {
 
 // ─── Render Results ───────────────────────────────────────────────────────────
 
-function showResults(budget, analysis, cost, risk, recommendation, aiResult, fomoScore) {
-  // Decide which polite message to show — AI takes priority if available
+function showResults(budget, analysis, cost, risk, recommendation, aiResult, fomoScore, totalSpentThisMonth) {
   const politeMsg = aiResult?.politeMessage || recommendation.politeMessage;
   const explanation = aiResult?.explanation || recommendation.summary;
   const advice = aiResult?.recommendation || recommendation.advice;
+
+  // Calculate how much fun budget is left this month after existing spendings
+  const remainingMonthly = Math.max(0, budget.monthlyFunBudget - totalSpentThisMonth);
 
   resultDiv.innerHTML = `
     <div class="result-card">
@@ -128,18 +146,20 @@ function showResults(budget, analysis, cost, risk, recommendation, aiResult, fom
       <div class="result-section">
         <h3>💼 Your Budget</h3>
         <ul>
-          <li><span>Disposable Income</span>  <strong>$${budget.disposableIncome.toFixed(2)}/mo</strong></li>
-          <li><span>Monthly Fun Budget</span> <strong>$${budget.monthlyFunBudget.toFixed(2)}</strong></li>
-          <li><span>Weekly Fun Budget</span>  <strong>$${budget.weeklyFunBudget.toFixed(2)}</strong></li>
+          <li><span>Disposable Income</span>   <strong>$${budget.disposableIncome.toFixed(2)}/mo</strong></li>
+          <li><span>Monthly Fun Budget</span>  <strong>$${budget.monthlyFunBudget.toFixed(2)}</strong></li>
+          <li><span>Spent This Month</span>    <strong>$${totalSpentThisMonth.toFixed(2)}</strong></li>
+          <li><span>Remaining This Month</span><strong>$${remainingMonthly.toFixed(2)}</strong></li>
+          <li><span>Weekly Fun Budget</span>   <strong>$${budget.weeklyFunBudget.toFixed(2)}</strong></li>
         </ul>
       </div>
 
       <div class="result-section">
         <h3>🔍 Invitation Detected</h3>
         <ul>
-          <li><span>Venue</span>         <strong>${analysis.venue ?? "Not detected"}</strong></li>
-          <li><span>Category</span>      <strong>${analysis.category}</strong></li>
-          <li><span>Est. Cost</span>     <strong>$${cost.minCost}–$${cost.maxCost} <em>(avg $${cost.averageCost})</em></strong></li>
+          <li><span>Venue</span>          <strong>${analysis.venue ?? "Not detected"}</strong></li>
+          <li><span>Category</span>       <strong>${analysis.category}</strong></li>
+          <li><span>Est. Cost</span>      <strong>$${cost.minCost}–$${cost.maxCost} <em>(avg $${cost.averageCost})</em></strong></li>
           <li><span>Remaining After</span><strong>$${risk.remainingBudget.toFixed(2)}</strong></li>
         </ul>
       </div>
@@ -158,6 +178,19 @@ function showResults(budget, analysis, cost, risk, recommendation, aiResult, fom
         <p id="polite-text">"${politeMsg}"</p>
       </div>
 
+      <!-- ── Decision Buttons ───────────────────────────── -->
+      <div class="decision-section" id="decision-section">
+        <p class="decision-label">So... are you going?</p>
+        <div class="decision-buttons">
+          <button class="btn-in"  onclick="handleDecision('in',  ${cost.averageCost}, '${analysis.category}', '${analysis.venue ?? analysis.category}')">
+            ✅ I'm In! <span class="btn-sub">logs $${cost.averageCost} to spending</span>
+          </button>
+          <button class="btn-out" onclick="handleDecision('out', ${cost.averageCost}, '${analysis.category}', '${analysis.venue ?? analysis.category}')">
+            ❌ I'm Out <span class="btn-sub">budget stays intact</span>
+          </button>
+        </div>
+      </div>
+
       <div class="fomo-tracker">
         <span>🙈 FOMO Score</span>
         <strong>${fomoScore} hang${fomoScore === 1 ? "out" : "outs"} skipped</strong>
@@ -167,6 +200,41 @@ function showResults(budget, analysis, cost, risk, recommendation, aiResult, fom
   `;
 }
 
+// ─── Decision Handler ─────────────────────────────────────────────────────────
+
+window.handleDecision = function (decision, cost, category, label) {
+  const section = document.getElementById("decision-section");
+
+  if (decision === "in") {
+    // Log the spending
+    logSpending({ label, amount: cost, category });
+
+    // Replace decision buttons with a confirmation message
+    section.innerHTML = `
+      <div class="decision-confirmed in">
+        ✅ Nice! <strong>$${cost}</strong> logged to your spending history.
+        <br><span class="muted-text">Check Budget Tracker to see your updated totals.</span>
+      </div>
+    `;
+  } else {
+    // Increment FOMO score
+    incrementFomo();
+    const newFomo = getFomoScore();
+
+    // Replace decision buttons with a confirmation message
+    section.innerHTML = `
+      <div class="decision-confirmed out">
+        ❌ Smart move! Budget stays intact.
+        <br><span class="muted-text">FOMO Score is now ${newFomo}. Your wallet thanks you. 🙏</span>
+      </div>
+    `;
+
+    // Update FOMO tracker at bottom
+    const fomoEl = document.querySelector(".fomo-tracker strong");
+    if (fomoEl) fomoEl.textContent = `${newFomo} hang${newFomo === 1 ? "out" : "outs"} skipped`;
+  }
+};
+
 // ─── Copy Reply ───────────────────────────────────────────────────────────────
 
 window.copyReply = function (btn) {
@@ -174,39 +242,31 @@ window.copyReply = function (btn) {
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = "Copied!";
     btn.classList.add("copied");
-    setTimeout(() => {
-      btn.textContent = "Copy";
-      btn.classList.remove("copied");
-    }, 2000);
+    setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 2000);
   });
 };
 
 // ─── Main: Analyze Button ─────────────────────────────────────────────────────
 
 analyzeBtn.addEventListener("click", async () => {
-  // Step 1 — Read inputs
   const income = Number(document.getElementById("income").value);
   const expenses = Number(document.getElementById("expenses").value);
   const savings = Number(document.getElementById("savings").value);
   const inviteText = document.getElementById("inviteText").value;
 
-  // Step 2 — Validate
   const error = validateInputs(income, expenses, savings, inviteText);
   if (error) { showError(error); return; }
 
-  // Step 3 — Show loading state while AI runs
   showLoading();
 
   try {
-    // Step 4 — Run core logic pipeline
     const budget = calculateBudget(income, expenses, savings);
     const analysis = analyzeInvitation(inviteText);
     const cost = estimateCost(analysis.venue, analysis.category);
     const risk = calculateRisk(cost.averageCost, budget.weeklyFunBudget);
     const recommendation = getRecommendation(risk.riskLevel, risk.percentageUsed);
 
-    // Step 5 — Get AI suggestion (async)
-    // If API key not set or call fails, aiResult will be null → fallback to local recommendation
+    // Try AI suggestion — silently fall back if unavailable
     let aiResult = null;
     if (OPENROUTER_API_KEY !== "YOUR_OPENROUTER_API_KEY_HERE") {
       try {
@@ -218,16 +278,15 @@ analyzeBtn.addEventListener("click", async () => {
           category: analysis.category,
         }, OPENROUTER_API_KEY);
       } catch (aiError) {
-        // AI failed — silently fall back to local recommendation
         console.warn("Boundly: AI suggestion failed, using local fallback.", aiError);
       }
     }
 
-    // Step 6 — Update FOMO score if high risk
-    if (risk.riskLevel === "high") incrementFomo();
+    // Get total fun spending so far this month
+    const totalSpentThisMonth = getTotalSpentThisMonth();
     const fomoScore = getFomoScore();
 
-    // Step 7 — Save to history
+    // Save to history log
     saveToHistory({
       date: new Date().toISOString(),
       inviteText: inviteText.trim(),
@@ -240,8 +299,7 @@ analyzeBtn.addEventListener("click", async () => {
       politeMessage: aiResult?.politeMessage || recommendation.politeMessage,
     });
 
-    // Step 8 — Render everything
-    showResults(budget, analysis, cost, risk, recommendation, aiResult, fomoScore);
+    showResults(budget, analysis, cost, risk, recommendation, aiResult, fomoScore, totalSpentThisMonth);
 
   } catch (err) {
     showError(`Something went wrong: ${err.message}`);
