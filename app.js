@@ -1,13 +1,9 @@
 /**
- * app.js — Main Controller (v2)
+ * app.js — Main Controller (v3)
  * Boundly / Hackonomics Project
  *
- * Improvements:
- * - Color-coded risk badge
- * - Progress bar showing % of weekly budget used
- * - Copy button on polite message
- * - Save each analysis to localStorage
- * - FOMO score tracking (declined hangouts counter)
+ * Full pipeline:
+ * budget → analyze → cost → risk → recommendation → AI suggestion
  */
 
 import { calculateBudget } from "./budget.js";
@@ -15,6 +11,18 @@ import { analyzeInvitation } from "./analyzer.js";
 import { estimateCost } from "./venuecosts.js";
 import { calculateRisk } from "./risk.js";
 import { getRecommendation } from "./recommendations.js";
+import { getAISuggestion } from "./aiSuggestions.js";
+
+// ─── API Key ──────────────────────────────────────────────────────────────────
+// Get a free key at https://openrouter.ai
+// Replace the string below with your actual key before running
+
+const OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY_HERE";
+
+// ─── Storage Keys ─────────────────────────────────────────────────────────────
+
+const STORAGE_KEY = "boundly_history";
+const FOMO_KEY = "boundly_fomo";
 
 // ─── DOM References ───────────────────────────────────────────────────────────
 
@@ -23,43 +31,22 @@ const resultDiv = document.getElementById("result");
 
 // ─── LocalStorage Helpers ─────────────────────────────────────────────────────
 
-const STORAGE_KEY = "boundly_history";
-const FOMO_KEY = "boundly_fomo";
-
-/**
- * Loads full history array from localStorage.
- * @returns {Array}
- */
 function loadHistory() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
 }
 
-/**
- * Saves a new analysis entry to localStorage history.
- * @param {object} entry
- */
 function saveToHistory(entry) {
   const history = loadHistory();
-  history.unshift(entry); // newest first
+  history.unshift(entry);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 }
 
-/**
- * Increments the FOMO score when user declines (high risk).
- */
 function incrementFomo() {
   const current = parseInt(localStorage.getItem(FOMO_KEY) || "0");
   localStorage.setItem(FOMO_KEY, current + 1);
 }
 
-/**
- * Gets current FOMO score.
- * @returns {number}
- */
 function getFomoScore() {
   return parseInt(localStorage.getItem(FOMO_KEY) || "0");
 }
@@ -67,18 +54,18 @@ function getFomoScore() {
 // ─── Input Validation ─────────────────────────────────────────────────────────
 
 function validateInputs(income, expenses, savings, inviteText) {
-  if (isNaN(income) || isNaN(expenses) || isNaN(savings)) {
+  if (isNaN(income) || isNaN(expenses) || isNaN(savings))
     return "Please enter valid numbers for income, expenses, and savings.";
-  }
-  if (income <= 0) return "Income must be greater than zero.";
-  if (expenses < 0 || savings < 0) return "Expenses and savings cannot be negative.";
-  if (!inviteText || inviteText.trim().length === 0) {
+  if (income <= 0)
+    return "Income must be greater than zero.";
+  if (expenses < 0 || savings < 0)
+    return "Expenses and savings cannot be negative.";
+  if (!inviteText || inviteText.trim().length === 0)
     return "Please paste the hangout invitation text before analyzing.";
-  }
   return null;
 }
 
-// ─── Error Display ────────────────────────────────────────────────────────────
+// ─── UI Helpers ───────────────────────────────────────────────────────────────
 
 function showError(message) {
   resultDiv.innerHTML = `
@@ -86,13 +73,15 @@ function showError(message) {
   `;
 }
 
-// ─── Risk Badge ───────────────────────────────────────────────────────────────
+function showLoading() {
+  resultDiv.innerHTML = `
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Analyzing your invite + getting AI advice...</p>
+    </div>
+  `;
+}
 
-/**
- * Returns a color-coded badge HTML string based on risk level.
- * @param {"low"|"medium"|"high"} riskLevel
- * @returns {string}
- */
 function riskBadge(riskLevel) {
   const config = {
     low: { emoji: "🟢", label: "LOW RISK", cls: "badge-low" },
@@ -103,14 +92,6 @@ function riskBadge(riskLevel) {
   return `<span class="risk-badge ${cls}">${emoji} ${label}</span>`;
 }
 
-// ─── Progress Bar ─────────────────────────────────────────────────────────────
-
-/**
- * Returns a progress bar HTML string.
- * @param {number} percentage
- * @param {"low"|"medium"|"high"} riskLevel
- * @returns {string}
- */
 function progressBar(percentage, riskLevel) {
   const capped = Math.min(percentage, 100);
   return `
@@ -128,7 +109,12 @@ function progressBar(percentage, riskLevel) {
 
 // ─── Render Results ───────────────────────────────────────────────────────────
 
-function showResults(budget, analysis, cost, risk, recommendation, fomoScore) {
+function showResults(budget, analysis, cost, risk, recommendation, aiResult, fomoScore) {
+  // Decide which polite message to show — AI takes priority if available
+  const politeMsg = aiResult?.politeMessage || recommendation.politeMessage;
+  const explanation = aiResult?.explanation || recommendation.summary;
+  const advice = aiResult?.recommendation || recommendation.advice;
+
   resultDiv.innerHTML = `
     <div class="result-card">
 
@@ -142,7 +128,7 @@ function showResults(budget, analysis, cost, risk, recommendation, fomoScore) {
       <div class="result-section">
         <h3>💼 Your Budget</h3>
         <ul>
-          <li><span>Disposable Income</span> <strong>$${budget.disposableIncome.toFixed(2)}/mo</strong></li>
+          <li><span>Disposable Income</span>  <strong>$${budget.disposableIncome.toFixed(2)}/mo</strong></li>
           <li><span>Monthly Fun Budget</span> <strong>$${budget.monthlyFunBudget.toFixed(2)}</strong></li>
           <li><span>Weekly Fun Budget</span>  <strong>$${budget.weeklyFunBudget.toFixed(2)}</strong></li>
         </ul>
@@ -151,18 +137,17 @@ function showResults(budget, analysis, cost, risk, recommendation, fomoScore) {
       <div class="result-section">
         <h3>🔍 Invitation Detected</h3>
         <ul>
-          <li><span>Venue</span>    <strong>${analysis.venue ?? "Not detected"}</strong></li>
-          <li><span>Category</span> <strong>${analysis.category}</strong></li>
-          <li><span>Est. Cost</span><strong>$${cost.minCost}–$${cost.maxCost} <em>(avg $${cost.averageCost})</em></strong></li>
+          <li><span>Venue</span>         <strong>${analysis.venue ?? "Not detected"}</strong></li>
+          <li><span>Category</span>      <strong>${analysis.category}</strong></li>
+          <li><span>Est. Cost</span>     <strong>$${cost.minCost}–$${cost.maxCost} <em>(avg $${cost.averageCost})</em></strong></li>
           <li><span>Remaining After</span><strong>$${risk.remainingBudget.toFixed(2)}</strong></li>
         </ul>
       </div>
 
       <div class="result-section">
-        <h3>💡 Recommendation</h3>
-        <p class="advice-text">${recommendation.summary}</p>
-        <p class="advice-text">${recommendation.advice}</p>
-        <p class="advice-text muted">${recommendation.action}</p>
+        <h3>${aiResult ? "🤖 AI Advisor" : "💡 Recommendation"}</h3>
+        <p class="advice-text">${explanation}</p>
+        <p class="advice-text">${advice}</p>
       </div>
 
       <div class="polite-message">
@@ -170,19 +155,19 @@ function showResults(budget, analysis, cost, risk, recommendation, fomoScore) {
           <h3>💬 Suggested Reply</h3>
           <button class="copy-btn" onclick="copyReply(this)">Copy</button>
         </div>
-        <p id="polite-text">"${recommendation.politeMessage}"</p>
+        <p id="polite-text">"${politeMsg}"</p>
       </div>
 
       <div class="fomo-tracker">
         <span>🙈 FOMO Score</span>
-        <strong>${fomoScore} hang${fomoScore === 1 ? "out" : "outs"} skipped to protect your budget</strong>
+        <strong>${fomoScore} hang${fomoScore === 1 ? "out" : "outs"} skipped</strong>
       </div>
 
     </div>
   `;
 }
 
-// ─── Copy Reply Handler ───────────────────────────────────────────────────────
+// ─── Copy Reply ───────────────────────────────────────────────────────────────
 
 window.copyReply = function (btn) {
   const text = document.getElementById("polite-text")?.innerText || "";
@@ -198,7 +183,7 @@ window.copyReply = function (btn) {
 
 // ─── Main: Analyze Button ─────────────────────────────────────────────────────
 
-analyzeBtn.addEventListener("click", () => {
+analyzeBtn.addEventListener("click", async () => {
   // Step 1 — Read inputs
   const income = Number(document.getElementById("income").value);
   const expenses = Number(document.getElementById("expenses").value);
@@ -209,19 +194,40 @@ analyzeBtn.addEventListener("click", () => {
   const error = validateInputs(income, expenses, savings, inviteText);
   if (error) { showError(error); return; }
 
+  // Step 3 — Show loading state while AI runs
+  showLoading();
+
   try {
-    // Step 3 — Run pipeline
+    // Step 4 — Run core logic pipeline
     const budget = calculateBudget(income, expenses, savings);
     const analysis = analyzeInvitation(inviteText);
     const cost = estimateCost(analysis.venue, analysis.category);
     const risk = calculateRisk(cost.averageCost, budget.weeklyFunBudget);
     const recommendation = getRecommendation(risk.riskLevel, risk.percentageUsed);
 
-    // Step 4 — Update FOMO score if high risk
+    // Step 5 — Get AI suggestion (async)
+    // If API key not set or call fails, aiResult will be null → fallback to local recommendation
+    let aiResult = null;
+    if (OPENROUTER_API_KEY !== "YOUR_OPENROUTER_API_KEY_HERE") {
+      try {
+        aiResult = await getAISuggestion({
+          weeklyBudget: budget.weeklyFunBudget,
+          estimatedCost: cost.averageCost,
+          percentageUsed: risk.percentageUsed,
+          riskLevel: risk.riskLevel,
+          category: analysis.category,
+        }, OPENROUTER_API_KEY);
+      } catch (aiError) {
+        // AI failed — silently fall back to local recommendation
+        console.warn("Boundly: AI suggestion failed, using local fallback.", aiError);
+      }
+    }
+
+    // Step 6 — Update FOMO score if high risk
     if (risk.riskLevel === "high") incrementFomo();
     const fomoScore = getFomoScore();
 
-    // Step 5 — Save to localStorage history
+    // Step 7 — Save to history
     saveToHistory({
       date: new Date().toISOString(),
       inviteText: inviteText.trim(),
@@ -231,11 +237,11 @@ analyzeBtn.addEventListener("click", () => {
       riskLevel: risk.riskLevel,
       percentageUsed: risk.percentageUsed,
       weeklyBudget: budget.weeklyFunBudget,
-      politeMessage: recommendation.politeMessage,
+      politeMessage: aiResult?.politeMessage || recommendation.politeMessage,
     });
 
-    // Step 6 — Render
-    showResults(budget, analysis, cost, risk, recommendation, fomoScore);
+    // Step 8 — Render everything
+    showResults(budget, analysis, cost, risk, recommendation, aiResult, fomoScore);
 
   } catch (err) {
     showError(`Something went wrong: ${err.message}`);
