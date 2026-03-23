@@ -8,11 +8,11 @@
 
 // ─── Imports ──────────────────────────────────────────────────────────────────
 
-import { calculateBudget } from "./logic/budget.js";
-import { analyzeInvitation } from "./logic/analyzer.js";
-import { estimateCost } from "./data/venuecosts.js";
-import { calculateRisk } from "./logic/risk.js";
-import { getRecommendation } from "./logic/recommendations.js";
+import { calculateBudget } from "./budget.js";
+import { analyzeInvitation } from "./analyzer.js";
+import { estimateCost } from "./venuecosts.js";
+import { calculateRisk } from "./risk.js";
+import { getRecommendation } from "./recommendations.js";
 
 // ─── DOM References ───────────────────────────────────────────────────────────
 
