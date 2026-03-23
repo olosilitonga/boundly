@@ -1,1 +1,303 @@
+/* ─────────────────────────────────────────────────────────────
+   style.css — Boundly
+   Clean, minimal, professional "startup app" aesthetic
+───────────────────────────────────────────────────────────── */
 
+/* ── Design Tokens ────────────────────────────────────────── */
+
+:root {
+    --color-bg: #f0f2f5;
+    --color-surface: #ffffff;
+    --color-surface-alt: #f8f9fb;
+    --color-border: #e2e6ec;
+    --color-primary: #1a56db;
+    --color-primary-dark: #1446bb;
+    --color-text: #1a1f2e;
+    --color-text-muted: #6b7280;
+    --color-success: #dcfce7;
+    --color-warning: #fef9c3;
+    --color-danger: #fee2e2;
+    --color-error-text: #b91c1c;
+
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+
+    --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.08);
+    --shadow-btn: 0 2px 8px rgba(26, 86, 219, 0.25);
+
+    --font-main: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "DM Mono", ui-monospace, monospace;
+}
+
+/* ── Reset ────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: 60px;
+}
+
+/* ── Google Fonts Import ──────────────────────────────────── */
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap");
+
+/* ── Container ────────────────────────────────────────────── */
+
+.container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+
+header {
+    text-align: center;
+    margin-bottom: 36px;
+    padding: 36px 24px 28px;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    border-top: 4px solid var(--color-primary);
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--color-text);
+}
+
+.tagline {
+    margin-top: 6px;
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+
+/* ── Section ──────────────────────────────────────────────── */
+
+.section {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 28px 28px 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-card);
+}
+
+.section h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-border);
+    letter-spacing: -0.01em;
+}
+
+/* ── Input Group ──────────────────────────────────────────── */
+
+.input-group {
+    margin-bottom: 16px;
+}
+
+.input-group:last-of-type {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 6px;
+}
+
+.input-group input,
+.input-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    resize: vertical;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+    border-color: var(--color-primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+}
+
+.input-group input::placeholder,
+.input-group textarea::placeholder {
+    color: #b0b7c3;
+}
+
+/* ── Helper Text ──────────────────────────────────────────── */
+
+.helper-text {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+/* ── Button ───────────────────────────────────────────────── */
+
+#analyzeBtn {
+    display: block;
+    width: 100%;
+    padding: 12px 24px;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: var(--color-primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    box-shadow: var(--shadow-btn);
+    letter-spacing: -0.01em;
+}
+
+#analyzeBtn:hover {
+    background-color: var(--color-primary-dark);
+}
+
+#analyzeBtn:active {
+    transform: scale(0.99);
+}
+
+/* ── Result Area ──────────────────────────────────────────── */
+
+#result:empty {
+    display: none;
+    /* hide when empty so section doesn't look weird */
+}
+
+.result-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.result-card h2 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-border);
+    border: none;
+    /* override .section h2 border */
+}
+
+.result-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.result-card ul li {
+    font-size: 0.9rem;
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+}
+
+.result-card ul li strong {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.result-card p {
+    font-size: 0.9rem;
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 6px;
+}
+
+/* ── Polite Message (Highlight Box) ───────────────────────── */
+
+.polite-message {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+}
+
+.polite-message h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 8px;
+}
+
+.polite-message p {
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--color-text);
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ── Error Message ────────────────────────────────────────── */
+
+.error {
+    background: var(--color-danger);
+    color: var(--color-error-text);
+    border: 1px solid #fca5a5;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 0.9rem;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+    .container {
+        margin: 20px auto;
+        padding: 0 12px;
+    }
+
+    .section {
+        padding: 20px 16px;
+    }
+
+    header {
+        padding: 24px 16px 20px;
+    }
+
+    header h1 {
+        font-size: 1.6rem;
+    }
+}
