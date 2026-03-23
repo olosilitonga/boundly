@@ -628,6 +628,17 @@ header h1 {
     background: #fee2e2;
 }
 
+.source-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 1px 6px;
+    border-radius: 99px;
+    background: #e0e7ff;
+    color: #3730a3;
+    margin-left: 4px;
+    font-weight: 500;
+}
+
 /* ── Select Input ─────────────────────────────────────────── */
 
 .input-group select {
