@@ -281,6 +281,386 @@ header h1 {
     font-size: 0.9rem;
 }
 
+/* ── Nav ──────────────────────────────────────────────────── */
+
+.nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.nav a {
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+.nav a.active,
+.nav a:hover {
+    background: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
+}
+
+/* ── Risk Badge ───────────────────────────────────────────── */
+
+.risk-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.badge-low {
+    background: var(--color-success);
+    color: #15803d;
+}
+
+.badge-medium {
+    background: var(--color-warning);
+    color: #92400e;
+}
+
+.badge-high {
+    background: var(--color-danger);
+    color: var(--color-error-text);
+}
+
+/* ── Result Header ────────────────────────────────────────── */
+
+.result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.result-header h2 {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border: none;
+}
+
+/* ── Progress Bar ─────────────────────────────────────────── */
+
+.progress-wrap {
+    margin-bottom: 16px;
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-bottom: 6px;
+}
+
+.progress-track {
+    width: 100%;
+    height: 10px;
+    background: var(--color-border);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s ease;
+}
+
+.progress-low {
+    background: #22c55e;
+}
+
+.progress-medium {
+    background: #f59e0b;
+}
+
+.progress-high {
+    background: #ef4444;
+}
+
+/* ── Result Section ───────────────────────────────────────── */
+
+.result-section {
+    margin-bottom: 16px;
+}
+
+.result-section h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+}
+
+.result-section ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.result-section ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+}
+
+/* ── Advice Text ──────────────────────────────────────────── */
+
+.advice-text {
+    font-size: 0.9rem;
+    color: var(--color-text);
+    line-height: 1.6;
+    margin-bottom: 6px;
+}
+
+.advice-text.muted {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
+/* ── Polite Message ───────────────────────────────────────── */
+
+.polite-message {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+}
+
+.polite-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.polite-header h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.polite-message p {
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--color-text);
+}
+
+/* ── Copy Button ──────────────────────────────────────────── */
+
+.copy-btn {
+    padding: 4px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-main);
+    color: var(--color-primary);
+    background: #fff;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.copy-btn:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.copy-btn.copied {
+    background: #22c55e;
+    border-color: #22c55e;
+    color: #fff;
+}
+
+/* ── FOMO Tracker ─────────────────────────────────────────── */
+
+.fomo-tracker {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    color: #92400e;
+}
+
+/* ── Health Score ─────────────────────────────────────────── */
+
+.health-score-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.health-score-number {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.health-score-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.health-label {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.health-great {
+    color: #15803d;
+}
+
+.health-good {
+    color: #1a56db;
+}
+
+.health-warn {
+    color: #92400e;
+}
+
+.health-danger {
+    color: #b91c1c;
+}
+
+.health-breakdown {
+    list-style: none;
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.health-breakdown li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* ── Category Rows ────────────────────────────────────────── */
+
+.category-row {
+    margin-bottom: 12px;
+}
+
+.category-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+}
+
+.category-name {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.category-amount {
+    color: var(--color-text-muted);
+}
+
+/* ── Spending List ────────────────────────────────────────── */
+
+.spending-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.spending-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    gap: 8px;
+}
+
+.spending-list li>span:last-child {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+    line-height: 1;
+}
+
+.delete-btn:hover {
+    background: #fee2e2;
+}
+
+/* ── Select Input ─────────────────────────────────────────── */
+
+.input-group select {
+    width: 100%;
+    padding: 10px 14px;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    outline: none;
+}
+
+.input-group select:focus {
+    border-color: var(--color-primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+}
+
+/* ── Misc ─────────────────────────────────────────────────── */
+
+.muted-text {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.total-label {
+    font-weight: 400;
+    font-size: 0.8rem;
+    margin-left: 8px;
+}
+
 /* ── Responsive ───────────────────────────────────────────── */
 
 @media (max-width: 600px) {
