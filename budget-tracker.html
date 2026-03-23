@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boundly — Budget Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+
+    <header>
+      <h1>Boundly 💸</h1>
+      <p class="tagline">Know your limits. Own your choices.</p>
+    </header>
+
+    <!-- ── Nav ─────────────────────────────────────────── -->
+    <nav class="nav">
+      <a href="index.html">Analyze</a>
+      <a href="budget-tracker.html" class="active">Budget Tracker</a>
+    </nav>
+
+    <!-- ── Budget Health Score ──────────────────────────── -->
+    <section class="section" id="health-section">
+      <h2>💚 Budget Health Score</h2>
+      <div id="health-display">
+        <p class="muted-text">Set your budget below to see your score.</p>
+      </div>
+    </section>
+
+    <!-- ── Set Monthly Budget ───────────────────────────── -->
+    <section class="section">
+      <h2>💼 Monthly Budget Setup</h2>
+
+      <div class="input-group">
+        <label for="bt-income">Monthly Income ($)</label>
+        <input type="number" id="bt-income" placeholder="e.g. 3000" min="0" />
+      </div>
+      <div class="input-group">
+        <label for="bt-expenses">Essential Expenses ($)</label>
+        <input type="number" id="bt-expenses" placeholder="e.g. 2000" min="0" />
+      </div>
+      <div class="input-group">
+        <label for="bt-savings">Savings Target ($)</label>
+        <input type="number" id="bt-savings" placeholder="e.g. 300" min="0" />
+      </div>
+
+      <button id="setBudgetBtn">Save Budget</button>
+    </section>
+
+    <!-- ── Spending Log ──────────────────────────────────── -->
+    <section class="section">
+      <h2>📝 Log a Spending</h2>
+
+      <div class="input-group">
+        <label for="spend-label">What was it?</label>
+        <input type="text" id="spend-label" placeholder="e.g. Boba with friends" />
+      </div>
+      <div class="input-group">
+        <label for="spend-amount">Amount ($)</label>
+        <input type="number" id="spend-amount" placeholder="e.g. 12" min="0" />
+      </div>
+      <div class="input-group">
+        <label for="spend-category">Category</label>
+        <select id="spend-category">
+          <option value="dining">Dining</option>
+          <option value="drinks">Drinks / Cafe</option>
+          <option value="entertainment">Entertainment</option>
+          <option value="fast food">Fast Food</option>
+          <option value="transport">Transport</option>
+          <option value="shopping">Shopping</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <button id="logSpendBtn">Log Spending</button>
+    </section>
+
+    <!-- ── Spending Overview ─────────────────────────────── -->
+    <section class="section">
+      <h2>📊 This Month's Spending</h2>
+      <div id="spending-overview">
+        <p class="muted-text">No spendings logged yet.</p>
+      </div>
+    </section>
+
+    <!-- ── FOMO Score ────────────────────────────────────── -->
+    <section class="section">
+      <h2>🙈 FOMO Score</h2>
+      <div id="fomo-display">
+        <p class="muted-text">Loading...</p>
+      </div>
+    </section>
+
+  </div>
+
+  <script type="module" src="budget-tracker.js"></script>
+</body>
+</html>
