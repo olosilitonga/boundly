@@ -11,11 +11,53 @@
 // Add more venues here as needed.
 
 const VENUE_MAP = {
+    // Fast food
     "in-n-out": "fast food",
-    "cheesecake factory": "casual dining",
-    "starbucks": "cafe",
-    "boba": "drinks",
     "mcdonalds": "fast food",
+    "mcd": "fast food",
+    "mcdonald": "fast food",
+    "burger king": "fast food",
+    "bk": "fast food",
+    "kfc": "fast food",
+    "jollibee": "fast food",
+    "taco bell": "fast food",
+    "subway": "fast food",
+    "panda express": "fast food",
+    "wingstop": "fast food",
+    "dirty birds": "fast food",
+
+    // Casual dining
+    "cheesecake factory": "casual dining",
+    "shake shack": "casual dining",
+    "toroast": "casual dining",
+    "toroast toronto": "casual dining",
+    "big way": "casual dining",
+    "curry up now": "casual dining",
+    "lemongrass": "casual dining",
+    "babi panggang": "casual dining",
+    "nasi padang": "casual dining",
+
+    // Cafe & drinks
+    "starbucks": "cafe",
+    "tim hortons": "cafe",
+    "tim horton": "cafe",
+    "timhortons": "cafe",
+    "cha bar": "cafe",
+    "boba": "drinks",
+
+    // Sushi / Japanese
+    "kibo sushi": "sushi",
+    "kibo": "sushi",
+
+    // Pizza
+    "papa johns": "pizza",
+    "papa john": "pizza",
+    "dominos": "pizza",
+    "domino": "pizza",
+
+    // Smoothies / juice
+    "jamba": "smoothies",
+    "jamba juice": "smoothies",
 };
 
 // ─── Keyword → Category Fallback ─────────────────────────────────────────────
@@ -23,12 +65,15 @@ const VENUE_MAP = {
 // Each category maps to a list of trigger keywords.
 
 const KEYWORD_MAP = {
-    "fast food": ["burger", "fries"],
-    "cafe": ["coffee", "cafe"],
-    "drinks": ["boba", "milk tea"],
-    "dining": ["dinner", "restaurant", "eat"],
-    "entertainment": ["movie", "cinema"],
-    "brunch": ["brunch"],
+    "fast food": ["burger", "fries", "fried chicken", "nuggets", "wings", "wrap"],
+    "cafe": ["coffee", "cafe", "latte", "cappuccino", "espresso", "donut"],
+    "drinks": ["boba", "milk tea", "bubble tea", "teh"],
+    "smoothies": ["smoothie", "juice", "acai"],
+    "dining": ["dinner", "restaurant", "eat", "makan", "lunch", "brunch"],
+    "sushi": ["sushi", "roll", "sashimi", "omakase"],
+    "pizza": ["pizza", "pie", "pepperoni"],
+    "entertainment": ["movie", "cinema", "film", "nonton"],
+    "brunch": ["brunch", "pancakes", "waffles"],
 };
 
 // ─── Main Function ────────────────────────────────────────────────────────────
@@ -43,7 +88,7 @@ function analyzeInvitation(text) {
     // Step 1 — Normalize: lowercase for case-insensitive matching
     const normalized = text.toLowerCase();
 
-    // Step 2 — Try to detect a known venue first
+    // Step 2 — Try to detect a known venue first (most specific)
     for (const [venue, category] of Object.entries(VENUE_MAP)) {
         if (normalized.includes(venue)) {
             return { venue, category };
@@ -83,3 +128,12 @@ export { analyzeInvitation };
 
 // analyzeInvitation("Let's get food")
 // → { venue: null, category: "dining" }
+
+// analyzeInvitation("KFC run?")
+// → { venue: "kfc", category: "fast food" }
+
+// analyzeInvitation("Tim Hortons coffee break?")
+// → { venue: "tim hortons", category: "cafe" }
+
+// analyzeInvitation("Jollibee for lunch!")
+// → { venue: "jollibee", category: "fast food" }
