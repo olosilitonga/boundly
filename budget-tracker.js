@@ -1,16 +1,40 @@
 /**
- * budget-tracker.js — Budget Tracker Page (v2)
+ * budget-tracker.js — Budget Tracker Page (v3)
  * Boundly / Hackonomics Project
  *
- * Reads spending history saved by app.js ("I'm In" decisions)
- * and also lets users manually log spendings here.
+ * New in v3:
+ * - Donut chart (Chart.js) showing spending by category
+ * - Custom legend with amounts + percentages
+ * - Chart updates live when spendings change
  */
 
-// ─── Storage Keys (must match app.js) ────────────────────────────────────────
+// ─── Storage Keys ─────────────────────────────────────────────────────────────
 
 const BUDGET_KEY = "boundly_budget";
-const SPENDING_KEY = "boundly_spendings"; // shared with app.js
+const SPENDING_KEY = "boundly_spendings";
 const FOMO_KEY = "boundly_fomo";
+
+// ─── Category Colors ──────────────────────────────────────────────────────────
+// Each category gets a consistent color across chart + legend
+
+const CATEGORY_COLORS = {
+  "dining": { bg: "#1D9E75", light: "#E1F5EE" },
+  "drinks": { bg: "#378ADD", light: "#E6F1FB" },
+  "fast food": { bg: "#EF9F27", light: "#FAEEDA" },
+  "entertainment": { bg: "#D85A30", light: "#FAECE7" },
+  "transport": { bg: "#7F77DD", light: "#EEEDFE" },
+  "shopping": { bg: "#D4537E", light: "#FBEAF0" },
+  "other": { bg: "#888780", light: "#F1EFE8" },
+  "casual dining": { bg: "#0F6E56", light: "#E1F5EE" },
+  "sushi": { bg: "#185FA5", light: "#E6F1FB" },
+  "pizza": { bg: "#993C1D", light: "#FAECE7" },
+  "smoothies": { bg: "#639922", light: "#EAF3DE" },
+  "cafe": { bg: "#BA7517", light: "#FAEEDA" },
+};
+
+function getCategoryColor(cat) {
+  return CATEGORY_COLORS[cat?.toLowerCase()] || { bg: "#888780", light: "#F1EFE8" };
+}
 
 // ─── Storage Helpers ──────────────────────────────────────────────────────────
 
@@ -20,17 +44,113 @@ function loadSpendings() { try { return JSON.parse(localStorage.getItem(SPENDING
 function saveSpendings(arr) { localStorage.setItem(SPENDING_KEY, JSON.stringify(arr)); }
 function getFomoScore() { return parseInt(localStorage.getItem(FOMO_KEY) || "0"); }
 
-// ─── Month Filter ─────────────────────────────────────────────────────────────
-
-/**
- * Returns only spendings from the current month.
- * @returns {Array}
- */
 function getThisMonthSpendings() {
   const now = new Date();
   return loadSpendings().filter(s => {
     const d = new Date(s.date);
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+}
+
+// ─── Chart Instance ───────────────────────────────────────────────────────────
+
+let chartInstance = null;
+
+// ─── Donut Chart ──────────────────────────────────────────────────────────────
+
+function renderDonutChart() {
+  const spendings = getThisMonthSpendings();
+  const emptyEl = document.getElementById("chart-empty");
+  const wrapEl = document.getElementById("chart-wrap");
+
+  // Show empty state if no data
+  if (spendings.length === 0) {
+    emptyEl.style.display = "block";
+    wrapEl.style.display = "none";
+    return;
+  }
+
+  emptyEl.style.display = "none";
+  wrapEl.style.display = "block";
+
+  // Group by category
+  const byCategory = {};
+  for (const s of spendings) {
+    const cat = s.category || "other";
+    byCategory[cat] = (byCategory[cat] || 0) + s.amount;
+  }
+
+  const total = Object.values(byCategory).reduce((a, b) => a + b, 0);
+  const labels = Object.keys(byCategory);
+  const values = labels.map(l => byCategory[l]);
+  const colors = labels.map(l => getCategoryColor(l).bg);
+  const lightColors = labels.map(l => getCategoryColor(l).light);
+
+  // Update center total
+  document.getElementById("donut-total").textContent = `$${total.toFixed(0)}`;
+
+  // Build legend HTML
+  const legendEl = document.getElementById("donut-legend");
+  legendEl.innerHTML = labels.map((label, i) => {
+    const pct = Math.round((values[i] / total) * 100);
+    const color = colors[i];
+    const light = lightColors[i];
+    return `
+      <div class="legend-item">
+        <span class="legend-dot" style="background:${color}"></span>
+        <span class="legend-label">${label}</span>
+        <span class="legend-amount" style="color:${color}">$${values[i].toFixed(0)}</span>
+        <span class="legend-pct" style="background:${light};color:${color}">${pct}%</span>
+      </div>
+    `;
+  }).join("");
+
+  const ctx = document.getElementById("spendingChart").getContext("2d");
+
+  // Destroy old chart before redrawing
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors,
+        borderColor: "#ffffff",
+        borderWidth: 3,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: "68%",
+      plugins: {
+        legend: { display: false }, // we use custom legend
+        tooltip: {
+          callbacks: {
+            label(ctx) {
+              const val = ctx.parsed;
+              const pct = Math.round((val / total) * 100);
+              return `  $${val.toFixed(2)}  (${pct}%)`;
+            }
+          },
+          backgroundColor: "#1a1f2e",
+          titleColor: "#ffffff",
+          bodyColor: "#e2e6ec",
+          padding: 10,
+          cornerRadius: 8,
+        }
+      },
+      animation: {
+        animateRotate: true,
+        duration: 700,
+        easing: "easeInOutQuart",
+      }
+    }
   });
 }
 
@@ -50,8 +170,6 @@ function healthLabel(score) {
   if (score >= 25) return { label: "Watch Out ⚠️", cls: "health-warn" };
   return { label: "Critical 🔴", cls: "health-danger" };
 }
-
-// ─── Render: Health Score ─────────────────────────────────────────────────────
 
 function renderHealthScore() {
   const el = document.getElementById("health-display");
@@ -83,42 +201,40 @@ function renderHealthScore() {
       </div>
     </div>
     <ul class="health-breakdown">
-      <li><span>Monthly fun budget</span> <strong>$${budget.monthlyFunBudget.toFixed(2)}</strong></li>
-      <li><span>Spent this month</span>   <strong>$${totalSpent.toFixed(2)}</strong></li>
-      <li><span>Remaining</span>          <strong>$${Math.max(0, budget.monthlyFunBudget - totalSpent).toFixed(2)}</strong></li>
+      <li><span>Monthly fun budget</span><strong>$${budget.monthlyFunBudget.toFixed(2)}</strong></li>
+      <li><span>Spent this month</span>  <strong>$${totalSpent.toFixed(2)}</strong></li>
+      <li><span>Remaining</span>         <strong>$${Math.max(0, budget.monthlyFunBudget - totalSpent).toFixed(2)}</strong></li>
     </ul>
   `;
 }
 
-// ─── Render: Spending Overview ────────────────────────────────────────────────
+// ─── Spending Overview ────────────────────────────────────────────────────────
 
 function renderSpendingOverview() {
   const el = document.getElementById("spending-overview");
   const budget = loadBudget();
-  const all = loadSpendings();         // ALL spendings ever
-  const monthly = getThisMonthSpendings(); // this month only
+  const all = loadSpendings();
+  const monthly = getThisMonthSpendings();
 
   if (all.length === 0) {
-    el.innerHTML = `
-      <p class="muted-text">No spendings yet. Go analyze an invite and hit "I'm In!" 🎉</p>
-    `;
+    el.innerHTML = `<p class="muted-text">No spendings yet. Analyze an invite and hit "I'm In!" 🎉</p>`;
     return;
   }
 
   const totalSpent = monthly.reduce((sum, s) => sum + s.amount, 0);
   const funBudget = budget?.monthlyFunBudget || 0;
 
-  // Group this month's spendings by category
+  // Group by category for progress bars
   const byCategory = {};
   for (const s of monthly) {
-    if (!byCategory[s.category]) byCategory[s.category] = 0;
-    byCategory[s.category] += s.amount;
+    byCategory[s.category] = (byCategory[s.category] || 0) + s.amount;
   }
 
   const categoryRows = Object.entries(byCategory)
     .sort((a, b) => b[1] - a[1])
     .map(([cat, amount]) => {
       const pct = funBudget > 0 ? Math.min(Math.round((amount / funBudget) * 100), 100) : 0;
+      const color = getCategoryColor(cat).bg;
       return `
         <div class="category-row">
           <div class="category-meta">
@@ -126,17 +242,17 @@ function renderSpendingOverview() {
             <span class="category-amount">$${amount.toFixed(2)} <em>(${pct}%)</em></span>
           </div>
           <div class="progress-track">
-            <div class="progress-fill progress-medium" style="width:${pct}%"></div>
+            <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
           </div>
         </div>
       `;
     }).join("");
 
-  // Full spending list (all time), newest first
   const itemList = all.map((s, i) => {
     const date = new Date(s.date);
     const dateStr = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
     const source = s.source === "manual" ? "manual" : "from analyze";
+    const color = getCategoryColor(s.category).bg;
     return `
       <li>
         <span>
@@ -146,7 +262,7 @@ function renderSpendingOverview() {
         </span>
         <span>
           <span class="muted-text" style="font-size:0.8rem">${dateStr}</span>
-          <strong>$${s.amount.toFixed(2)}</strong>
+          <strong style="color:${color}">$${s.amount.toFixed(2)}</strong>
           <button class="delete-btn" onclick="deleteSpending(${i})">✕</button>
         </span>
       </li>
@@ -155,17 +271,17 @@ function renderSpendingOverview() {
 
   el.innerHTML = `
     <div class="result-section">
-      <h3>This month by category</h3>
-      ${categoryRows.length > 0 ? categoryRows : '<p class="muted-text">No spendings logged this month yet.</p>'}
+      <h3>By category</h3>
+      ${categoryRows.length > 0 ? categoryRows : '<p class="muted-text">No spendings this month yet.</p>'}
     </div>
     <div class="result-section" style="margin-top:16px">
-      <h3>All history <span class="muted-text total-label">Total this month: $${totalSpent.toFixed(2)}</span></h3>
+      <h3>All history <span class="muted-text total-label">This month: $${totalSpent.toFixed(2)}</span></h3>
       <ul class="spending-list">${itemList}</ul>
     </div>
   `;
 }
 
-// ─── Render: FOMO Score ───────────────────────────────────────────────────────
+// ─── FOMO Score ───────────────────────────────────────────────────────────────
 
 function renderFomo() {
   const el = document.getElementById("fomo-display");
@@ -196,6 +312,7 @@ window.deleteSpending = function (index) {
 
 function renderAll() {
   renderHealthScore();
+  renderDonutChart();
   renderSpendingOverview();
   renderFomo();
 }
@@ -224,7 +341,7 @@ document.getElementById("setBudgetBtn").addEventListener("click", () => {
   renderAll();
 });
 
-// ─── Event: Manual Log Spending ───────────────────────────────────────────────
+// ─── Event: Log Spending ──────────────────────────────────────────────────────
 
 document.getElementById("logSpendBtn").addEventListener("click", () => {
   const label = document.getElementById("spend-label").value.trim();
@@ -235,7 +352,6 @@ document.getElementById("logSpendBtn").addEventListener("click", () => {
   if (!amount || amount <= 0) { alert("Please enter a valid amount."); return; }
 
   const spendings = loadSpendings();
-  // Mark as "manual" so history list can label it differently
   spendings.unshift({ label, amount, category, date: new Date().toISOString(), source: "manual" });
   saveSpendings(spendings);
 
