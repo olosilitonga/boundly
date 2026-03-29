@@ -1,1 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boundly — Know Your Limits</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e28;
+      --border: rgba(255, 255, 255, 0.08);
+      --border2: rgba(255, 255, 255, 0.14);
+      --accent: #4ade80;
+      --accent2: #22d3ee;
+      --text: #f0f2f8;
+      --muted: #7a8099;
+      --danger: #f87171;
+      --warning: #fbbf24;
+      --font-head: "Syne", sans-serif;
+      --font-body: "DM Sans", sans-serif;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── LANDING PAGE ──────────────────────────────────────── */
+
+    #landing {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* nav */
+    .landing-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    .brand span {
+      color: var(--accent);
+    }
+
+    .nav-cta {
+      background: var(--accent);
+      color: #0d0f14;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 10px 22px;
+      border-radius: 99px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .nav-cta:hover {
+      opacity: 0.85;
+    }
+
+    /* hero */
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle grid bg */
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* glow orb */
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(74, 222, 128, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 99px;
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+    }
+
+    .hero-title {
+      font-family: var(--font-head);
+      font-size: clamp(2.8rem, 7vw, 5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--text);
+      max-width: 700px;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 20px;
+    }
+
+    .hero-title .accent {
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 64px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0d0f14;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 14px 32px;
+      border-radius: 99px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 1rem;
+      padding: 14px 32px;
+      border-radius: 99px;
+      border: 1px solid var(--border2);
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    /* feature cards */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 820px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      text-align: left;
+      transition: border-color 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border2);
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .feature-title {
+      font-family: var(--font-head);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* stats row */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      padding: 40px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: var(--font-head);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.04em;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── ONBOARDING OVERLAY ────────────────────────────────── */
+
+    #onboarding {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 15, 20, 0.92);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #onboarding.active {
+      display: flex;
+    }
+
+    .wizard {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      padding: 40px 36px;
+      position: relative;
+    }
+
+    /* progress dots */
+    .wizard-dots {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 36px;
+    }
+
+    .dot {
+      height: 4px;
+      border-radius: 99px;
+      background: var(--border2);
+      flex: 1;
+      transition: background 0.3s;
+    }
+
+    .dot.active {
+      background: var(--accent);
+    }
+
+    /* step */
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    .step-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .step-title {
+      font-family: var(--font-head);
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .step-sub {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    /* inputs */
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .field input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.12);
+    }
+
+    .field input::placeholder {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .field-error {
+      font-size: 0.75rem;
+      color: var(--danger);
+      margin-top: 5px;
+      display: none;
+    }
+
+    /* wizard nav */
+    .wizard-nav {
+      display: flex;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .btn-next {
+      flex: 1;
+      background: var(--accent);
+      color: #0d0f14;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-next:hover {
+      opacity: 0.88;
+    }
+
+    .btn-back {
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 14px 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border2);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .btn-back:hover {
+      color: var(--text);
+    }
+
+    /* step 3 summary */
+    .summary-rows {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-row span:first-child {
+      color: var(--muted);
+    }
+
+    .summary-row strong {
+      color: var(--accent);
+      font-family: var(--font-head);
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .summary-highlight {
+      background: rgba(74, 222, 128, 0.06);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .summary-highlight span {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .summary-highlight strong {
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.04em;
+    }
+
+    /* responsive */
+    @media (max-width: 640px) {
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        gap: 24px;
+      }
+
+      .landing-nav {
+        padding: 16px 20px;
+      }
+
+      .wizard {
+        padding: 28px 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══ LANDING PAGE ══════════════════════════════════════════ -->
+  <div id="landing">
+
+    <nav class="landing-nav">
+      <div class="brand">Bound<span>ly</span></div>
+      <button class="nav-cta" onclick="openOnboarding()">Get Started →</button>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-badge">Built for broke college students 💸</div>
+
+      <h1 class="hero-title">
+        Should you go<br>or <span class="accent">stay broke?</span>
+      </h1>
+
+      <p class="hero-sub">
+        Paste any hangout invite. Boundly analyzes your budget,
+        estimates the cost, and tells you if you can actually afford it —
+        with a polite reply ready to copy.
+      </p>
+
+      <div class="hero-buttons">
+        <button class="btn-primary" onclick="openOnboarding()">Start for free →</button>
+        <button class="btn-secondary" onclick="goToApp()">Skip to app</button>
+      </div>
+
+      <div class="features">
+        <div class="feature-card">
+          <span class="feature-icon">🔍</span>
+          <div class="feature-title">Smart Detection</div>
+          <div class="feature-desc">Recognizes 80+ venues and activities from any invite text.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">⚡</span>
+          <div class="feature-title">Instant Risk Score</div>
+          <div class="feature-desc">Know in seconds if this hangout is low, medium, or high risk for your wallet.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">💬</span>
+          <div class="feature-title">Polite Reply</div>
+          <div class="feature-desc">Get a ready-to-send message so saying no never feels awkward.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🍩</span>
+          <div class="feature-title">Spending Tracker</div>
+          <div class="feature-desc">See where your fun budget actually goes with live donut charts.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🙈</span>
+          <div class="feature-title">FOMO Score</div>
+          <div class="feature-desc">Track how many hangouts you've skipped to protect your budget.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🤖</span>
+          <div class="feature-title">AI Advisor</div>
+          <div class="feature-desc">Get personalized financial advice powered by AI on every decision.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-number">80+</span>
+        <div class="stat-label">Venues detected</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">3s</span>
+        <div class="stat-label">To get your answer</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">$0</span>
+        <div class="stat-label">Cost to use</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">100%</span>
+        <div class="stat-label">Private — no signup</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ ONBOARDING WIZARD ══════════════════════════════════════ -->
+  <div id="onboarding">
+    <div class="wizard">
+
+      <!-- Progress dots -->
+      <div class="wizard-dots">
+        <div class="dot active" id="dot-1"></div>
+        <div class="dot" id="dot-2"></div>
+        <div class="dot" id="dot-3"></div>
+      </div>
+
+      <!-- Step 1: Welcome -->
+      <div class="step active" id="step-1">
+        <div class="step-eyebrow">Step 1 of 3</div>
+        <h2 class="step-title">Hey, what should we call you? 👋</h2>
+        <p class="step-sub">Just a first name is fine. We'll use it to personalize your experience.</p>
+
+        <div class="field">
+          <label>Your name</label>
+          <input type="text" id="input-name" placeholder="e.g. Alex" autocomplete="off" />
+          <div class="field-error" id="err-name">Please enter your name.</div>
+        </div>
+
+        <div class="wizard-nav">
+          <button class="btn-next" onclick="goStep(2)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Budget -->
+      <div class="step" id="step-2">
+        <div class="step-eyebrow">Step 2 of 3</div>
+        <h2 class="step-title" id="step2-title">Let's set your budget 💰</h2>
+        <p class="step-sub">This stays on your device — we never store your data anywhere else.</p>
+
+        <div class="field">
+          <label>Monthly income ($)</label>
+          <input type="number" id="input-income" placeholder="e.g. 2000" min="0" />
+          <div class="field-hint">Your total take-home pay per month.</div>
+          <div class="field-error" id="err-income">Please enter a valid income.</div>
+        </div>
+
+        <div class="field">
+          <label>Essential expenses ($)</label>
+          <input type="number" id="input-expenses" placeholder="e.g. 1200" min="0" />
+          <div class="field-hint">Rent, food, bills, transport — the non-negotiables.</div>
+          <div class="field-error" id="err-expenses">Please enter valid expenses.</div>
+        </div>
+
+        <div class="field">
+          <label>Monthly savings target ($)</label>
+          <input type="number" id="input-savings" placeholder="e.g. 300" min="0" />
+          <div class="field-hint">How much you want to save each month.</div>
+          <div class="field-error" id="err-savings">Please enter a valid savings target.</div>
+        </div>
+
+        <div class="wizard-nav">
+          <button class="btn-back" onclick="goStep(1)">← Back</button>
+          <button class="btn-next" onclick="goStep(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Summary -->
+      <div class="step" id="step-3">
+        <div class="step-eyebrow">Step 3 of 3</div>
+        <h2 class="step-title">You're all set! 🎉</h2>
+        <p class="step-sub">Here's your financial snapshot. You can always update this in Budget Tracker.</p>
+
+        <div class="summary-rows" id="summary-rows"></div>
+
+        <div class="summary-highlight">
+          <span>Weekly fun budget</span>
+          <strong id="summary-weekly">$0</strong>
+        </div>
+
+        <div class="wizard-nav">
+          <button class="btn-back" onclick="goStep(2)">← Back</button>
+          <button class="btn-next" onclick="finishOnboarding()">Go to Boundly →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ── Storage ──────────────────────────────────────────────
+    const BUDGET_KEY = "boundly_budget";
+    const PROFILE_KEY = "boundlyUserProfile";
+
+    function saveBudgetData(income, expenses, savings, name) {
+      const disposable = income - expenses - savings;
+      const monthlyFunBudget = disposable;
+      const weeklyFunBudget = parseFloat((disposable / 4.33).toFixed(2));
+      const data = { income, expenses, savings, disposable, monthlyFunBudget, weeklyFunBudget, name };
+      localStorage.setItem(BUDGET_KEY, JSON.stringify(data));
+      localStorage.setItem(PROFILE_KEY, JSON.stringify({ income, expenses, savings, name }));
+    }
+
+    // ── Check if already onboarded ────────────────────────────
+    const existing = localStorage.getItem(BUDGET_KEY);
+    if (existing) {
+      // Already set up — go straight to app
+      window.location.href = "index.html";
+    }
+
+    // ── Wizard State ─────────────────────────────────────────
+    let currentStep = 1;
+
+    function openOnboarding() {
+      document.getElementById("onboarding").classList.add("active");
+    }
+
+    function goToApp() {
+      window.location.href = "index.html";
+    }
+
+    function setDots(step) {
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById(`dot-${i}`).classList.toggle("active", i <= step);
+      }
+    }
+
+    function showError(id, show) {
+      document.getElementById(id).style.display = show ? "block" : "none";
+    }
+
+    function goStep(n) {
+      // Validate current step before moving forward
+      if (n > currentStep) {
+        if (currentStep === 1) {
+          const name = document.getElementById("input-name").value.trim();
+          if (!name) { showError("err-name", true); return; }
+          showError("err-name", false);
+          document.getElementById("step2-title").textContent = `Let's set your budget, ${name} 💰`;
+        }
+
+        if (currentStep === 2) {
+          const income = Number(document.getElementById("input-income").value);
+          const expenses = Number(document.getElementById("input-expenses").value);
+          const savings = Number(document.getElementById("input-savings").value);
+          let valid = true;
+
+          if (!income || income <= 0) { showError("err-income", true); valid = false; } else showError("err-income", false);
+          if (isNaN(expenses) || expenses < 0) { showError("err-expenses", true); valid = false; } else showError("err-expenses", false);
+          if (isNaN(savings) || savings < 0) { showError("err-savings", true); valid = false; } else showError("err-savings", false);
+          if (expenses + savings >= income) {
+            showError("err-income", true);
+            document.getElementById("err-income").textContent = "Expenses + savings can't exceed your income.";
+            valid = false;
+          }
+          if (!valid) return;
+
+          // Build summary
+          const disposable = income - expenses - savings;
+          const weekly = (disposable / 4.33).toFixed(2);
+
+          document.getElementById("summary-rows").innerHTML = `
+          <div class="summary-row"><span>Monthly income</span><strong>$${income.toLocaleString()}</strong></div>
+          <div class="summary-row"><span>Essential expenses</span><strong>$${expenses.toLocaleString()}</strong></div>
+          <div class="summary-row"><span>Savings target</span><strong>$${savings.toLocaleString()}</strong></div>
+          <div class="summary-row"><span>Monthly fun budget</span><strong>$${disposable.toFixed(2)}</strong></div>
+        `;
+          document.getElementById("summary-weekly").textContent = `$${weekly}`;
+        }
+      }
+
+      // Switch step
+      document.getElementById(`step-${currentStep}`).classList.remove("active");
+      document.getElementById(`step-${n}`).classList.add("active");
+      currentStep = n;
+      setDots(n);
+    }
+
+    function finishOnboarding() {
+      const name = document.getElementById("input-name").value.trim();
+      const income = Number(document.getElementById("input-income").value);
+      const expenses = Number(document.getElementById("input-expenses").value);
+      const savings = Number(document.getElementById("input-savings").value);
+
+      saveBudgetData(income, expenses, savings, name);
+      window.location.href = "index.html";
+    }
+
+    // Enter key support
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        const step = document.querySelector(".step.active");
+        if (step) {
+          const nextBtn = step.querySelector(".btn-next");
+          if (nextBtn) nextBtn.click();
+        }
+      }
+    });
+  </script>
+
+</body>
+
+</html>
