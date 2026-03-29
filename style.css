@@ -103,21 +103,24 @@ header h1 {
 /* ── Nav ──────────────────────────────────────────────────── */
 
 .nav {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 6px;
     margin-bottom: 20px;
 }
 
 .nav a {
-    padding: 8px 18px;
+    padding: 10px 8px;
     border-radius: 99px;
-    font-size: 0.875rem;
+    font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none;
     color: var(--muted);
     background: var(--surface);
     border: 1px solid var(--border);
     transition: all 0.2s;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .nav a.active,
