@@ -264,26 +264,6 @@
             background: var(--accent-dim);
         }
 
-        /* Mode Banner */
-        .mode-banner {
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            background: var(--info-bg);
-            color: var(--info);
-            display: none;
-        }
-
-        .mode-banner.simulation {
-            background: var(--warning-bg);
-            color: var(--warning);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; } to { opacity: 1; }
-        }
     </style>
     </style>
 </head>
@@ -304,10 +284,7 @@
             <a href="ai-chat.html" class="active">AI Chat</a>
         </nav>
 
-        <!-- API key notice -->
-        <div class="api-notice" id="api-notice">
-            💡 AI Chat uses the OpenRouter API. Add your key in <code>ai-chat.html</code> to enable real AI responses.
-        </div>
+
 
         <!-- Quick Prompts Hub -->
         <div class="quick-actions" id="quick-actions">
@@ -320,10 +297,7 @@
 
         <!-- Main Chat Area -->
         <div class="chat-container">
-            <!-- Mode Banner (Hidden by default) -->
-            <div class="mode-banner" id="mode-banner">
-                ⚡ Real AI Mode Enabled
-            </div>
+
 
             <!-- Empty State -->
             <div class="chat-empty-state" id="chat-empty">
@@ -371,7 +345,6 @@
         const inputEl = document.getElementById("chat-input");
         const sendBtn = document.getElementById("chat-send");
         const emptyState = document.getElementById("chat-empty");
-        const modeBanner = document.getElementById("mode-banner");
 
         // ── Helpers ───────────────────────────────────────────
         function loadBudget() { try { return JSON.parse(localStorage.getItem(BUDGET_KEY)); } catch { return null; } }
@@ -536,11 +509,7 @@
         window.onload = () => {
             if (checkBudgetContext()) {
                 const ctx = buildContext();
-                if (isSimulation) {
-                    modeBanner.textContent = "⚙️ Simulation Mode: Add API Key in ai-chat.html for real AI";
-                    modeBanner.className = "mode-banner simulation";
-                }
-                modeBanner.style.display = "block";
+                // Simulation banner removed per user request
                 
                 addMessage("ai", `Hey ${ctx.name}! 👋 I'm your Boundly AI advisor. I see you have $${ctx.remaining.toFixed(2)} left in your fun budget. What's on your mind?`);
             }
