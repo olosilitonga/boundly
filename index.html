@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Boundly — Budget Tracker</title>
+    <title>Boundly — Analyze</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -14,111 +14,89 @@
 
         <header>
             <h1>Boundly 💸</h1>
-            <p class="tagline">Know your limits. Own your choices.</p>
+            <p class="tagline" id="header-tagline">Know your limits. Own your choices.</p>
         </header>
 
         <nav class="nav">
-            <a href="index.html">Analyze</a>
-            <a href="budget-tracker.html" class="active">Budget Tracker</a>
+            <a href="landing.html?view=landing">Home</a>
+            <a href="index.html" class="active">Analyze</a>
+            <a href="budget-tracker.html">Budget Tracker</a>
         </nav>
 
-        <!-- ── Budget Health Score ────────────────────────────── -->
+        <!-- ── Section 1: Financial Profile ─────────────────────── -->
         <section class="section">
-            <h2>💚 Budget Health Score</h2>
-            <div id="health-display">
-                <p class="muted-text">Set your budget below to see your score.</p>
+            <h2>💼 Financial Profile</h2>
+
+            <div class="input-group">
+                <label for="income">Monthly Income ($)</label>
+                <input type="number" id="income" placeholder="e.g. 3000" min="0" />
+            </div>
+
+            <div class="input-group">
+                <label for="expenses">Essential Monthly Expenses ($)</label>
+                <input type="number" id="expenses" placeholder="e.g. 2000" min="0" />
+            </div>
+
+            <div class="input-group">
+                <label for="savings">Monthly Savings Target ($)</label>
+                <input type="number" id="savings" placeholder="e.g. 300" min="0" />
             </div>
         </section>
 
-        <!-- ── Donut Chart ────────────────────────────────────── -->
-        <section class="section" id="chart-section">
-            <h2>🍩 Spending by Category</h2>
-            <div id="chart-empty" class="muted-text" style="display:none">
-                No spendings logged yet — go analyze an invite and hit "I'm In"!
+        <!-- ── Section 2: Social Invitation ──────────────────────── -->
+        <section class="section">
+            <h2>📩 Social Invitation</h2>
+
+            <div class="input-group">
+                <label for="inviteText">Paste the hangout invitation</label>
+                <textarea id="inviteText" rows="4" placeholder="Paste a hangout invitation here..."></textarea>
+                <small class="helper-text">
+                    Example: "Let's grab dinner at Cheesecake Factory tonight"
+                </small>
             </div>
-            <div id="chart-wrap">
-                <div class="donut-layout">
-                    <div class="donut-container">
-                        <canvas id="spendingChart"></canvas>
-                        <div class="donut-center" id="donut-center">
-                            <span class="donut-total-label">Total</span>
-                            <span class="donut-total-value" id="donut-total">$0</span>
-                        </div>
-                    </div>
-                    <div class="donut-legend" id="donut-legend"></div>
-                </div>
-            </div>
+
+            <button id="analyzeBtn">Analyze 🔍</button>
         </section>
 
-        <!-- ── Monthly Budget Setup ───────────────────────────── -->
+        <!-- ── Section 3: Analysis Result ────────────────────────── -->
         <section class="section">
-            <h2>💼 Monthly Budget Setup</h2>
-
-            <div class="input-group">
-                <label for="bt-income">Monthly Income ($)</label>
-                <input type="number" id="bt-income" placeholder="e.g. 3000" min="0" />
-            </div>
-            <div class="input-group">
-                <label for="bt-expenses">Essential Expenses ($)</label>
-                <input type="number" id="bt-expenses" placeholder="e.g. 2000" min="0" />
-            </div>
-            <div class="input-group">
-                <label for="bt-savings">Savings Target ($)</label>
-                <input type="number" id="bt-savings" placeholder="e.g. 300" min="0" />
-            </div>
-
-            <button id="setBudgetBtn">Save Budget</button>
-        </section>
-
-        <!-- ── Log a Spending ─────────────────────────────────── -->
-        <section class="section">
-            <h2>📝 Log a Spending</h2>
-
-            <div class="input-group">
-                <label for="spend-label">What was it?</label>
-                <input type="text" id="spend-label" placeholder="e.g. Boba with friends" />
-            </div>
-            <div class="input-group">
-                <label for="spend-amount">Amount ($)</label>
-                <input type="number" id="spend-amount" placeholder="e.g. 12" min="0" />
-            </div>
-            <div class="input-group">
-                <label for="spend-category">Category</label>
-                <select id="spend-category">
-                    <option value="dining">Dining</option>
-                    <option value="drinks">Drinks / Cafe</option>
-                    <option value="entertainment">Entertainment</option>
-                    <option value="fast food">Fast Food</option>
-                    <option value="transport">Transport</option>
-                    <option value="shopping">Shopping</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-
-            <button id="logSpendBtn">Log Spending</button>
-        </section>
-
-        <!-- ── Spending History ───────────────────────────────── -->
-        <section class="section">
-            <h2>📊 This Month's Spending</h2>
-            <div id="spending-overview">
-                <p class="muted-text">No spendings logged yet.</p>
-            </div>
-        </section>
-
-        <!-- ── FOMO Score ─────────────────────────────────────── -->
-        <section class="section">
-            <h2>🙈 FOMO Score</h2>
-            <div id="fomo-display">
-                <p class="muted-text">Loading...</p>
-            </div>
+            <h2>📊 Analysis Result</h2>
+            <div id="result"></div>
         </section>
 
     </div>
 
-    <!-- Chart.js from CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-    <script type="module" src="budget-tracker.js"></script>
+    <!-- Auto-fill budget from onboarding profile -->
+    <script>
+        const BUDGET_KEY = "boundly_budget";
+
+        // If no budget saved, redirect to landing/onboarding
+        const saved = localStorage.getItem(BUDGET_KEY);
+        if (!saved) {
+            window.location.href = "landing.html";
+        } else {
+            try {
+                const profile = JSON.parse(saved);
+
+                // Personalize header
+                if (profile.name) {
+                    document.getElementById("header-tagline").textContent =
+                        `Hey ${profile.name} 👋 — know your limits, own your choices.`;
+                }
+
+                // Auto-fill inputs
+                if (profile.income) document.getElementById("income").value = profile.income;
+                if (profile.expenses) document.getElementById("expenses").value = profile.expenses;
+                if (profile.savings) document.getElementById("savings").value = profile.savings;
+
+            } catch (e) {
+                console.warn("Boundly: could not parse saved profile.");
+            }
+        }
+    </script>
+
+    <script type="module" src="app.js"></script>
+
 </body>
 
 </html>

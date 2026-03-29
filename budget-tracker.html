@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Boundly — Budget Tracker</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <div class="container">
@@ -15,21 +17,41 @@
       <p class="tagline">Know your limits. Own your choices.</p>
     </header>
 
-    <!-- ── Nav ─────────────────────────────────────────── -->
     <nav class="nav">
+      <a href="landing.html?view=landing">Home</a>
       <a href="index.html">Analyze</a>
       <a href="budget-tracker.html" class="active">Budget Tracker</a>
     </nav>
 
-    <!-- ── Budget Health Score ──────────────────────────── -->
-    <section class="section" id="health-section">
+    <!-- ── Budget Health Score ────────────────────────────── -->
+    <section class="section">
       <h2>💚 Budget Health Score</h2>
       <div id="health-display">
         <p class="muted-text">Set your budget below to see your score.</p>
       </div>
     </section>
 
-    <!-- ── Set Monthly Budget ───────────────────────────── -->
+    <!-- ── Donut Chart ────────────────────────────────────── -->
+    <section class="section" id="chart-section">
+      <h2>🍩 Spending by Category</h2>
+      <div id="chart-empty" class="muted-text" style="display:none">
+        No spendings logged yet — go analyze an invite and hit "I'm In"!
+      </div>
+      <div id="chart-wrap">
+        <div class="donut-layout">
+          <div class="donut-container">
+            <canvas id="spendingChart"></canvas>
+            <div class="donut-center" id="donut-center">
+              <span class="donut-total-label">Total</span>
+              <span class="donut-total-value" id="donut-total">$0</span>
+            </div>
+          </div>
+          <div class="donut-legend" id="donut-legend"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Monthly Budget Setup ───────────────────────────── -->
     <section class="section">
       <h2>💼 Monthly Budget Setup</h2>
 
@@ -49,7 +71,7 @@
       <button id="setBudgetBtn">Save Budget</button>
     </section>
 
-    <!-- ── Spending Log ──────────────────────────────────── -->
+    <!-- ── Log a Spending ─────────────────────────────────── -->
     <section class="section">
       <h2>📝 Log a Spending</h2>
 
@@ -77,7 +99,7 @@
       <button id="logSpendBtn">Log Spending</button>
     </section>
 
-    <!-- ── Spending Overview ─────────────────────────────── -->
+    <!-- ── Spending History ───────────────────────────────── -->
     <section class="section">
       <h2>📊 This Month's Spending</h2>
       <div id="spending-overview">
@@ -85,7 +107,7 @@
       </div>
     </section>
 
-    <!-- ── FOMO Score ────────────────────────────────────── -->
+    <!-- ── FOMO Score ─────────────────────────────────────── -->
     <section class="section">
       <h2>🙈 FOMO Score</h2>
       <div id="fomo-display">
@@ -93,8 +115,22 @@
       </div>
     </section>
 
+    <!-- ── Reset Data ─────────────────────────────────────── -->
+    <section class="section">
+      <h2>⚠️ Reset Data</h2>
+      <p class="muted-text" style="margin-bottom:16px">Permanently delete your data from this device. This cannot be
+        undone.</p>
+      <div class="reset-buttons">
+        <button id="resetSpendingsBtn" class="btn-reset-soft">🗑️ Clear Spending History</button>
+        <button id="resetAllBtn" class="btn-reset-hard">💥 Reset Everything</button>
+      </div>
+    </section>
+
   </div>
 
+  <!-- Chart.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script type="module" src="budget-tracker.js"></script>
 </body>
+
 </html>
