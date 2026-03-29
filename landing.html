@@ -755,9 +755,9 @@
     // ── Check if already onboarded ────────────────────────────
     const existing = localStorage.getItem(BUDGET_KEY);
     const forceView = new URLSearchParams(window.location.search).get("view") === "landing";
+    const isReset = new URLSearchParams(window.location.search).get("reset") === "true";
 
-    if (existing && !forceView) {
-      // Already set up — go straight to app
+    if (existing && !forceView && !isReset) {
       window.location.href = "index.html";
     }
 

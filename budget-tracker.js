@@ -365,6 +365,60 @@ document.getElementById("logSpendBtn").addEventListener("click", () => {
   renderAll();
 });
 
+// ─── Custom Confirm Dialog ────────────────────────────────────────────────────
+
+function showConfirm(message, onConfirm) {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,0.7);
+    z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;
+  `;
+  overlay.innerHTML = `
+    <div style="background:#13161e;border:1px solid rgba(255,255,255,0.14);border-radius:14px;
+                padding:28px 24px;max-width:360px;width:100%">
+      <p style="color:#f0f2f8;font-size:0.95rem;line-height:1.6;margin-bottom:20px">${message}</p>
+      <div style="display:flex;gap:10px">
+        <button id="confirm-cancel" style="flex:1;padding:10px;background:#1a1e28;color:#7a8099;
+          border:1px solid rgba(255,255,255,0.14);border-radius:8px;cursor:pointer;font-size:0.875rem">
+          Cancel
+        </button>
+        <button id="confirm-ok" style="flex:1;padding:10px;background:rgba(248,113,113,0.15);
+          color:#f87171;border:1px solid rgba(248,113,113,0.3);border-radius:8px;
+          cursor:pointer;font-size:0.875rem;font-weight:600">
+          Confirm
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.getElementById("confirm-cancel").onclick = () => overlay.remove();
+  document.getElementById("confirm-ok").onclick = () => { overlay.remove(); onConfirm(); };
+}
+
+// ─── Reset Buttons ────────────────────────────────────────────────────────────
+
+document.getElementById("resetSpendingsBtn").addEventListener("click", () => {
+  showConfirm("Clear all spending history? Your budget setup will stay intact.", () => {
+    localStorage.removeItem(SPENDING_KEY);
+    const btn = document.getElementById("resetSpendingsBtn");
+    btn.textContent = "Cleared ✓";
+    setTimeout(() => btn.textContent = "🗑️ Clear Spending History", 2000);
+    renderAll();
+  });
+});
+
+document.getElementById("resetAllBtn").addEventListener("click", () => {
+  showConfirm("Reset EVERYTHING? This deletes your budget, spending history, and FOMO score. You'll need to set up again.", () => {
+    // Clear all Boundly localStorage keys
+    Object.keys(localStorage)
+      .filter(k => k.startsWith("boundly") || k === "boundlyUserProfile")
+      .forEach(k => localStorage.removeItem(k));
+
+    // Use ?reset=true so landing.html doesn't redirect back
+    window.location.href = "landing.html?reset=true";
+  });
+});
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 const saved = loadBudget();
